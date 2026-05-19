@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-      - master
+  pull_request:
+    branches:
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,6 +24,7 @@ jobs:
 
   docker:
     needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,6 +35,9 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -40,6 +46,7 @@ jobs:
         with:
           context: ./server
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ vars.DOCKERHUB_USERNAME }}/mfp-server:latest
 
       - name: Build and push client
@@ -47,4 +54,5 @@ jobs:
         with:
           context: ./client
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ vars.DOCKERHUB_USERNAME }}/mfp-client:latest
