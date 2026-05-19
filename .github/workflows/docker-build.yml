@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - master
+  pull_request:
+    branches:
+      - main
+      - master
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,6 +26,7 @@ jobs:
 
   docker:
     needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
