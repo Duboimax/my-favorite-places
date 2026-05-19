@@ -1,0 +1,29 @@
+services:
+  client:
+    restart: unless-stopped
+    build: ./client
+    ports:
+      - "4173:80"
+    depends_on:
+      - server
+  server:
+    restart: unless-stopped
+    build: ./server
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    restart: unless-stopped
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

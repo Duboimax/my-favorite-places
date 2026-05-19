@@ -1,0 +1,21 @@
+FROM node:24-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package.json
+RUN npm i
+
+COPY tsconfig.json tsconfig.json
+COPY src src
+
+RUN npm run build && npm prune --omit=dev
+
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package.json package.json
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/dist dist
+
+CMD npm start
