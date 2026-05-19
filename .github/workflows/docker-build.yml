@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - master
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push server
+        uses: docker/build-push-action@v7
+        with:
+          context: ./server
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/mfp-server:latest
+
+      - name: Build and push client
+        uses: docker/build-push-action@v7
+        with:
+          context: ./client
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/mfp-client:latest
