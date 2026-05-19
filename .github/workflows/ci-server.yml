@@ -69,8 +69,8 @@ jobs:
         run: npx wait-on tcp:localhost:3000 --timeout 15000
 
       - name: Run Bruno tests
-        run: npx @usebruno/cli run "ESGI - DockerSwarm" --output results.json
-        working-directory: ./server
+        run: npx @usebruno/cli run .
+        working-directory: "./server/ESGI - DockerSwarm"
 
   docker:
     needs: bruno
