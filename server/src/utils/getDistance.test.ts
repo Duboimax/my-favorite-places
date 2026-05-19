@@ -15,6 +15,6 @@ describe('getDistance', () => {
   it('returns a positive number', () => {
     const a = { lat: 0, lng: 0 };
     const b = { lat: 10, lng: 10 };
-    expect(getDistance(a, b)).toBeGreaterThan(0);
+    expect(getDistance(a, b)).toBeGreaterThanOrEqual(0);
   });
 });

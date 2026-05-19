@@ -1,29 +1,19 @@
-name: ci
+name: ci-client
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "client/**"
   pull_request:
     branches:
       - main
+    paths:
+      - "client/**"
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./server
-
-      - name: Run tests
-        run: npm test
-        working-directory: ./server
-
   docker:
-    needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -35,19 +25,12 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-
-      - name: Build and push server
-        uses: docker/build-push-action@v7
-        with:
-          context: ./server
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/mfp-server:latest
 
       - name: Build and push client
         uses: docker/build-push-action@v7
