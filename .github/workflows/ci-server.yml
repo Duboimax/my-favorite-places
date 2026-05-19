@@ -27,8 +27,53 @@ jobs:
         run: npm test
         working-directory: ./server
 
-  docker:
+  bruno:
     needs: test
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: supersecret
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./server
+
+      - name: Build server
+        run: npm run build
+        working-directory: ./server
+
+      - name: Start server
+        run: node dist/index.js &
+        working-directory: ./server
+        env:
+          DB_HOST: localhost
+          DB_USER: postgres
+          DB_PASSWORD: supersecret
+          DB_NAME: postgres
+
+      - name: Wait for server
+        run: npx wait-on tcp:localhost:3000 --timeout 15000
+
+      - name: Run Bruno tests
+        run: npx @usebruno/cli run .
+        working-directory: "./server/ESGI - DockerSwarm"
+
+  docker:
+    needs: bruno
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
