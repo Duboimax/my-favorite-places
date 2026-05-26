@@ -5,7 +5,7 @@ import addressesRouter from "./controllers/Addresses";
 const apiRouter = Router();
 
 apiRouter.get("/bonjour", (_req, res) => {
-  res.json({ message: "hello !" });
+  res.json({ message: "hello ! la big sauce" });
 });
 
 apiRouter.use("/users", usersRouter);
